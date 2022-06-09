@@ -160,14 +160,14 @@ def installation_process() -> None:
 
 
 # If you just want to update the CNApy version, you just have to edit the following string:
-CNAPY_VERSION = "1.0.8"
+CNAPY_VERSION = "1.0.9"
 
 main = Tk()
 main.title("CNApy installer")
 label = Label(
     main,
     text="Welcome to the CNApy installer! "
-    "This program will install the latest CNApy version for you.\n"
+    f"This program will install the latest CNApy version ({CNAPY_VERSION}) for you.\n"
     "Click on the 'Start installation process' button in order to run CNApy's installation:"
 )
 button = Button(
