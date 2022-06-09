@@ -13,15 +13,16 @@ def installation_process() -> None:
     )
     messagebox.showinfo(
         "Choose the CNApy installation folder",
-        "In the next step, choose the folder on your computer\n"
+        "In the next step, choose an *empty* folder (e.g., a newly created folder) on your computer\n"
         "where you want CNApy to be installed."
     )
 
     selected_folder = filedialog.askdirectory(
         title="Choose CNApy installation folder",
+        initialdir="C:\\Program Files",
     )
-
-    if selected_folder == "":
+    print("The selected folder is:", selected_folder)
+    if (selected_folder == "") or (not os.path.isdir(selected_folder)):
         messagebox.showerror(
             "No valid CNApy installation folder selected",
             "It appears that you didn't select a valid CNApy installation folder.\n"
@@ -29,14 +30,24 @@ def installation_process() -> None:
             "and without clicking on 'Cancel'."
         )
         sys.exit(0)
+    if len(os.listdir(selected_folder)) > 0:
+        messagebox.showerror(
+            "No empty CNApy installation folder selected",
+            "It appears that you didn't select an *empty* CNApy installation folder.\n"
+            "'Empty' means that there are no files or folders already in the selected folder.\n"
+            "Please try the CNApy installation process again in an *empty* (e.g., newly created) "
+            "folder."
+        )
+        sys.exit(0)
 
     selected_folder = selected_folder.replace("/", "\\")
     if not selected_folder.endswith("\\"):
         selected_folder += "\\"
+    print("Reformatted folder is:", selected_folder)
 
     answer = messagebox.askyesno(
         "Choosing folder successful",
-        "Now, CNApy is going to be installed. This may take alot of time.\n"
+        "Now, CNApy is going to be installed. This may take a while.\n"
         "Please be patient until a new message appears.\n"
         "Do you want to proceed with the CNApy installation?"
     )
@@ -113,12 +124,14 @@ def installation_process() -> None:
     )
     messagebox.showinfo(
         "Success!",
-        "CNApy was installed successfully. In order to start it, click on the respective\n"
+        "CNApy was installed successfully. In order to start CNApy, click on the respective\n"
         "newly created CNApy icon on your desktop or in the start menu. You can also search\n"
         "for CNApy using the task bar.\n"
         "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the\n"
         "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
-        "(which are branded for miniconda)."
+        "(which are branded for miniconda).\n"
+        "You installed CNApy in the following folder:\n"
+        f"{selected_folder}\n"
     )
     sys.exit(0)
 
