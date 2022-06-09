@@ -11,9 +11,10 @@ def installation_process() -> None:
     label.config(
         text="Please follow the instructions in the message pop-up boxes of this installer"
     )
+    main.withdraw()
     messagebox.showinfo(
         "Choose the CNApy installation folder",
-        "In the next step, choose an *empty* folder (e.g., a newly created folder) on your computer\n"
+        "In the next step, choose an folder (e.g., a newly created folder) on your computer"
         "where you want CNApy to be installed."
     )
 
@@ -21,7 +22,10 @@ def installation_process() -> None:
         title="Choose CNApy installation folder",
         initialdir="C:\\Program Files",
     )
-    print("The selected folder is:", selected_folder)
+    selected_folder = selected_folder.replace("/", "\\")
+    if not selected_folder.endswith("\\"):
+        selected_folder += "\\"
+
     if (selected_folder == "") or (not os.path.isdir(selected_folder)):
         messagebox.showerror(
             "No valid CNApy installation folder selected",
@@ -31,19 +35,38 @@ def installation_process() -> None:
         )
         sys.exit(0)
     if len(os.listdir(selected_folder)) > 0:
-        messagebox.showerror(
-            "No empty CNApy installation folder selected",
-            "It appears that you didn't select an *empty* CNApy installation folder.\n"
-            "'Empty' means that there are no files or folders already in the selected folder.\n"
-            "Please try the CNApy installation process again in an *empty* (e.g., newly created) "
-            "folder."
-        )
-        sys.exit(0)
+        new_folder_name = "CNApy"
+        if os.path.exists(f"{selected_folder}{new_folder_name}"):
+            counter = 2
+            while os.path.exists(f"{selected_folder}{new_folder_name}"):
+                new_folder_name = f"CNApy{counter}"
+                counter += 1
+        selected_folder += new_folder_name + "\\"
 
-    selected_folder = selected_folder.replace("/", "\\")
-    if not selected_folder.endswith("\\"):
-        selected_folder += "\\"
-    print("Reformatted folder is:", selected_folder)
+        answer = messagebox.askyesno(
+            "Confirm folder for CNApy installation",
+            "Your selected folder is not empty. Since CNApy needs to be installed in an empty folder,"
+            f"the new empty subfolder {selected_folder} will be created and, therefore, CNApy will be "
+            "installed in the following full folder path:\n"
+            f"{selected_folder}\n"
+            f"Are you ok with this procedure?"
+        )
+        if not answer:
+            messagebox.showerror(
+                "Error in folder selection",
+                "Please retry the installation with a different folder."
+            )
+            sys.exit(0)
+        try:
+            os.mkdir(selected_folder)
+        except Exception:
+            messagebox.showerror(
+                "Error with folder creation",
+                "The new empty folder could not be created. Please make sure that you are allowed to have "
+                "access to your provided installation folder. If this error persists, please retry the installation "
+                "in a different folder, e.g. in a new empty folder that you created."
+            )
+            sys.exit(0)
 
     answer = messagebox.askyesno(
         "Choosing folder successful",
@@ -124,10 +147,10 @@ def installation_process() -> None:
     )
     messagebox.showinfo(
         "Success!",
-        "CNApy was installed successfully. In order to start CNApy, click on the respective\n"
-        "newly created CNApy icon on your desktop or in the start menu. You can also search\n"
+        "CNApy was installed successfully. In order to start CNApy, click on the respective "
+        "newly created CNApy icon on your desktop or in the start menu. You can also search "
         "for CNApy using the task bar.\n"
-        "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the\n"
+        "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
         "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
         "(which are branded for miniconda).\n"
         "You installed CNApy in the following folder:\n"
