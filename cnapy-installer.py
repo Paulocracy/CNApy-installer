@@ -4,6 +4,94 @@ import sys
 import urllib.request
 from tkinter import Tk, messagebox, Label, Button
 from tkinter import filedialog
+# See https://stackoverflow.com/questions/39948588/non-blocking-file-read
+from concurrent.futures import ThreadPoolExecutor
+
+g_selected_folder = ""
+
+
+def on_cnapy_installation_finish(future) -> None:
+    global main
+    global g_selected_folder
+    main.withdraw()
+    messagebox.showinfo(
+        "Success!",
+        "CNApy was installed successfully. In order to start CNApy, click on the respective "
+        "newly created CNApy icon on your desktop or in the start menu.\n"
+        "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
+        "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
+        "(which are branded for miniconda).\n"
+        "You installed CNApy in the following folder:\n"
+        f"{g_selected_folder}\n"
+    )
+    sys.exit(0)
+
+
+def run_cnapy_installation(selected_folder: str) -> None:
+    MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Windows-x86_64.exe"
+    miniconda_exe_name = "miniconda.exe"
+    miniconda_exe_path = f"{selected_folder}{miniconda_exe_name}"
+    try:
+        urllib.request.urlretrieve(MINICONDA_EXE_URL, miniconda_exe_path)
+    except Exception:
+        main.withdraw()
+        messagebox.showerror(
+            "Error while downloading",
+            "An error occurred in a download process of the installation.\n"
+            "Please make sure that your internet connection works and retry the installation."
+        )
+        sys.exit(0)
+
+    miniconda_install_path = f"{selected_folder}miniconda\\"
+    if os.path.exists(miniconda_install_path):
+        main.withdraw()
+        messagebox.showerror(
+            "CNApy seems to be already downloaded in this folder",
+            "It looks like CNApy is already downloaded in the given folder.\n"
+            "Please install this version of CNApy in a new folder.\n"
+            "Alternatively, uninstall the other CNApy version by using the 'UNINSTALL_CNAPY.bat'\n"
+            "in the respective folder."
+        )
+        sys.exit(0)
+
+    # As per https://stackoverflow.com/questions/39984611/
+    miniconda_command =  f'cd "{selected_folder}" && {miniconda_exe_name} /S /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /D={miniconda_install_path}'
+
+    try:
+        has_run_error = subprocess.check_call(
+            miniconda_command,
+            shell=True
+        )  # The " are introduces in order to handle paths with blank spaces
+    except subprocess.CalledProcessError:
+        has_run_error = True
+    if has_run_error:
+        main.withdraw()
+        messagebox.showerror(
+            "Error while running installation process",
+            "Unknown error during the execution of the installation process.\n"
+            "Please make sure that you have full access permissions on the selected installation folder."
+        )
+        sys.exit(0)
+
+    conda_path = f"{miniconda_install_path}\\condabin\\conda"
+    ibm_command = f'"{conda_path}" config --add channels IBMDecisionOptimization'
+    gurobi_command = f'"{conda_path}" config --add channels Gurobi'
+    cnapy_command = f'"{conda_path}" create -n cnapy-{CNAPY_VERSION} -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes'
+    clean_command = f'"{conda_path} clean -a --yes'
+
+    os.system(ibm_command)
+    os.system(gurobi_command)
+    os.system(cnapy_command)
+    os.system(clean_command)
+
+    os.remove(miniconda_exe_path)
+
+    uninstaller_path = f"{selected_folder}UNINSTALL_CNAPY.bat"
+    with open(uninstaller_path, "w") as f:
+        f.write(
+            "cd miniconda\n"
+            "Uninstall-Miniconda3.exe"
+        )
 
 
 def installation_process() -> None:
@@ -14,7 +102,7 @@ def installation_process() -> None:
     main.withdraw()
     messagebox.showinfo(
         "Choose the CNApy installation folder",
-        "In the next step, choose an folder (e.g., a newly created folder) on your computer"
+        "In the next step, choose an folder (e.g., a newly created folder) on your computer "
         "where you want CNApy to be installed."
     )
 
@@ -63,7 +151,8 @@ def installation_process() -> None:
             messagebox.showerror(
                 "Error with folder creation",
                 "The new empty folder could not be created. Please make sure that you are allowed to have "
-                "access to your provided installation folder. If this error persists, please retry the installation "
+                "access to your provided installation folder. E.g., this might be the case in the folder 'Programs' or 'Program Files'. "
+                "If this error persists, please retry the installation "
                 "in a different folder, e.g. in a new empty folder that you created."
             )
             sys.exit(0)
@@ -75,88 +164,19 @@ def installation_process() -> None:
         "Do you want to proceed with the CNApy installation?"
     )
     label.config(
-        text="CNApy installation running...\nPlease be patient until a new pop-up message appears"
+        text="CNApy installation running...\n"
+        "Please be patient until a new pop-up message appears"
     )
+    main.deiconify()
     if not answer:
         sys.exit(0)
 
-    MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Windows-x86_64.exe"
-    miniconda_exe_name = "miniconda.exe"
-    miniconda_exe_path = f"{selected_folder}{miniconda_exe_name}"
-    try:
-        urllib.request.urlretrieve(MINICONDA_EXE_URL, miniconda_exe_path)
-    except Exception:
-        messagebox.showerror(
-            "Error while downloading",
-            "An error occurred in a download process of the installation.\n"
-            "Please make sure that your internet connection works and retry the installation."
-        )
-        sys.exit(0)
+    global g_selected_folder
+    g_selected_folder = selected_folder
 
-    miniconda_install_path = f"{selected_folder}miniconda\\"
-    if os.path.exists(miniconda_install_path):
-        messagebox.showerror(
-            "CNApy seems to be already downloaded in this folder",
-            "It looks like CNApy is already downloaded in the given folder.\n"
-            "Please install this version of CNApy in a new folder.\n"
-            "Alternatively, uninstall the other CNApy version by using the 'UNINSTALL_CNAPY.bat'\n"
-            "in the respective folder."
-        )
-        sys.exit(0)
-
-    # As per https://stackoverflow.com/questions/39984611/
-    miniconda_command =  f'cd "{selected_folder}" && {miniconda_exe_name} /S /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /D={miniconda_install_path}'
-
-    try:
-        has_run_error = subprocess.check_call(
-            miniconda_command,
-            shell=True
-        )  # The " are introduces in order to handle paths with blank spaces
-    except subprocess.CalledProcessError:
-        has_run_error = True
-    if has_run_error:
-        messagebox.showerror(
-            "Error while running installation process",
-            "Unknown error during the execution of the installation process.\n"
-            "Please make sure that you have full access permissions on the selected installation folder."
-        )
-        sys.exit(0)
-
-    conda_path = f"{miniconda_install_path}\\condabin\\conda"
-    ibm_command = f'"{conda_path}" config --add channels IBMDecisionOptimization'
-    gurobi_command = f'"{conda_path}" config --add channels Gurobi'
-    cnapy_command = f'"{conda_path}" create -n cnapy-{CNAPY_VERSION} -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes'
-    clean_command = f'"{conda_path} clean -a --yes'
-
-    os.system(ibm_command)
-    os.system(gurobi_command)
-    os.system(cnapy_command)
-    os.system(clean_command)
-
-    os.remove(miniconda_exe_path)
-
-    uninstaller_path = f"{selected_folder}UNINSTALL_CNAPY.bat"
-    with open(uninstaller_path, "w") as f:
-        f.write(
-            "cd miniconda\n"
-            "Uninstall-Miniconda3.exe"
-        )
-
-    label.config(
-        text="CNApy was installed successfully!"
-    )
-    messagebox.showinfo(
-        "Success!",
-        "CNApy was installed successfully. In order to start CNApy, click on the respective "
-        "newly created CNApy icon on your desktop or in the start menu. You can also search "
-        "for CNApy using the task bar.\n"
-        "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
-        "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
-        "(which are branded for miniconda).\n"
-        "You installed CNApy in the following folder:\n"
-        f"{selected_folder}\n"
-    )
-    sys.exit(0)
+    executor = ThreadPoolExecutor(1)
+    future_installation = executor.submit(run_cnapy_installation, selected_folder)
+    future_installation.add_done_callback(on_cnapy_installation_finish)
 
 
 # If you just want to update the CNApy version, you just have to edit the following string:
