@@ -18,7 +18,10 @@ def on_cnapy_installation_finish(future) -> None:
         "Success!",
         "CNApy was installed successfully. In order to start CNApy, click on the respective "
         "newly created CNApy icon on your desktop or in the start menu.\n"
-        "NOTE: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
+        "NOTE 1: It is recommended to download the CNApy example projects (including interactive maps of models "
+        "such as ECC2, iML1515 and many more) by starting CNApy and clicking on 'Download CNApy example projects...' "
+        "in the 'Projects' menu entry.\n"
+        "NOTE 2: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
         "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
         "(which are branded for miniconda).\n"
         "You installed CNApy in the following folder:\n"
