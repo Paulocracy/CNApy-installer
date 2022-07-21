@@ -8,11 +8,12 @@ This is the Windows .exe installer for [CNApy](https://github.com/cnapy-org/CNAp
 
 This installer uses tkinter as GUI toolkit and Python as programming lanugage.
 
-In order to develop with cnapy-installer, create and activate its associated conda environment:
+In order to develop with cnapy-installer, create and activate its associated conda environment and pip install a package which cannot be found in conda-forge:
 
 ```sh
 conda env create -n cnapy-installer -f environment.yml
 conda activate cnapy-installer
+pip install elevate
 ```
 
 In order to create an .exe file out of this installer's script cnapy-installer.py, run

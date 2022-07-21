@@ -1,18 +1,26 @@
+
 import subprocess
 import os
 import sys
 import urllib.request
+from elevate import elevate
 from tkinter import Tk, messagebox, Label, Button
 from tkinter import filedialog
 # See https://stackoverflow.com/questions/39948588/non-blocking-file-read
 from concurrent.futures import ThreadPoolExecutor
 
 g_selected_folder = ""
+installation_successful = False
 
 
 def on_cnapy_installation_finish(future) -> None:
     global main
     global g_selected_folder
+    global installation_successful
+
+    if not installation_successful:
+        sys.exit(0)
+
     main.withdraw()
     messagebox.showinfo(
         "Success!",
@@ -71,7 +79,7 @@ def run_cnapy_installation(selected_folder: str) -> None:
         main.withdraw()
         messagebox.showerror(
             "Error while running installation process",
-            "Unknown error during the execution of the installation process.\n"
+            "Error during the execution of the installation process.\n"
             "Please make sure that you have full access permissions on the selected installation folder."
         )
         sys.exit(0)
@@ -95,6 +103,7 @@ def run_cnapy_installation(selected_folder: str) -> None:
             "cd miniconda\n"
             "Uninstall-Miniconda3.exe"
         )
+    installation_successful = True
 
 
 def installation_process() -> None:
@@ -103,6 +112,7 @@ def installation_process() -> None:
         text="Please follow the instructions in the message pop-up boxes of this installer"
     )
     main.withdraw()
+
     messagebox.showinfo(
         "Choose the CNApy installation folder",
         "In the next step, choose an folder (e.g., a newly created folder) on your computer "
@@ -185,6 +195,20 @@ def installation_process() -> None:
 # If you just want to update the CNApy version, you just have to edit the following string:
 CNAPY_VERSION = "1.0.9"
 
+# Request elevated user rights
+# Found thanks to
+# https://stackoverflow.com/questions/130763/request-uac-elevation-from-within-a-python-script
+try:
+    elevate()
+except Exception:
+    messagebox.showinfo(
+        "No administrator rights given",
+        "The CNApy installer did not get administrator rights. This means that you cannot install "
+        "CNApy in many folders, e.g. 'Program Files'. You can still try to install CNApy "
+        "in other folders."
+    )
+
+# Start the actual GUI program
 main = Tk()
 main.title("CNApy installer")
 label = Label(
