@@ -39,6 +39,8 @@ def on_cnapy_installation_finish(future) -> None:
 
 
 def run_cnapy_installation(selected_folder: str) -> None:
+    global installation_successful
+
     MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Windows-x86_64.exe"
     miniconda_exe_name = "miniconda.exe"
     miniconda_exe_path = f"{selected_folder}{miniconda_exe_name}"
