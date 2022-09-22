@@ -30,7 +30,7 @@ def on_cnapy_installation_finish(future) -> None:
         "such as ECC2, iML1515 and many more) by starting CNApy and clicking on 'Download CNApy example projects...' "
         "in the 'Projects' menu entry.\n"
         "NOTE 2: In order to deinstall CNApy, go to the folder where you installed CNApy, click on the "
-        "'UNINSTALL_CNAPY.bat' script and follow the deinstallation instructions "
+        "'cnapy-uninstaller.exe' and follow the deinstallation instructions "
         "(which are branded for miniconda).\n"
         "You installed CNApy in the following folder:\n"
         f"{g_selected_folder}\n"
@@ -99,12 +99,29 @@ def run_cnapy_installation(selected_folder: str) -> None:
 
     os.remove(miniconda_exe_path)
 
-    uninstaller_path = f"{selected_folder}UNINSTALL_CNAPY.bat"
-    with open(uninstaller_path, "w") as f:
-        f.write(
-            "cd miniconda\n"
-            "Uninstall-Miniconda3.exe"
+    # Old uninstaller routine which did not ask for elevated rights
+    # uninstaller_path = f"{selected_folder}UNINSTALL_CNAPY.bat"
+    # with open(uninstaller_path, "w") as f:
+    #     f.write(
+    #         "cd miniconda\n"
+    #         "Uninstall-Miniconda3.exe"
+    #     )
+
+    # Add uninstaller
+    UNINSTALLER_EXE_URL = "https://github.com/cnapy-org/CNApy-installer/blob/main/dist/cnapy-uninstaller.exe"
+    uninstaller_exe_name = "cnapy-uninstaller.exe"
+    uninstaller_exe_path = f"{selected_folder}{uninstaller_exe_name}"
+    try:
+        urllib.request.urlretrieve(UNINSTALLER_EXE_URL, uninstaller_exe_path)
+    except Exception:
+        main.withdraw()
+        messagebox.showerror(
+            "Error while downloading uninstaller",
+            "The CNApy uninstaller could not be created. In order to uninstall CNApy, please "
+            "delete the CNApy folder manually."
         )
+        sys.exit(0)
+
     installation_successful = True
 
 
@@ -195,7 +212,7 @@ def installation_process() -> None:
 
 
 # If you just want to update the CNApy version, you just have to edit the following string:
-CNAPY_VERSION = "1.1.2"
+CNAPY_VERSION = "1.1.3"
 
 # Request elevated user rights
 # Found thanks to

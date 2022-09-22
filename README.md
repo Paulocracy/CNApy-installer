@@ -4,7 +4,7 @@
 
 This is the Windows .exe installer for [CNApy](https://github.com/cnapy-org/CNApy) since CNApy version 1.0.9. You can find the installer for each CNApy version in [CNApy's release assets](https://github.com/cnapy-org/CNApy/releases).
 
-## Development instructions (only needed for developers of the installer itself)
+## Development instructions for the installer (only needed for developers of the installer itself)
 
 This installer uses tkinter as GUI toolkit and Python as programming lanugage.
 
@@ -24,3 +24,11 @@ pyinstaller cnapy-installer.py --onefile --noconsole -i app.ico
 ```
 
 Now, you can find the cnapy-installer.exe under the subfolder "./dist".
+
+## Development instructions for the uninstaller (only needed for developers of the uninstaller itself)
+
+The uninstaller, which is added to the CNApy folder at the end of the installation process and is created such that the user is directly asked for elevated user rights, can be created in its .exe form as follows:
+
+```sh
+pyinstaller cnapy-uninstaller.py --onefile --noconsole -i app.ico
+```
