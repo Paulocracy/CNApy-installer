@@ -108,7 +108,7 @@ def run_cnapy_installation(selected_folder: str) -> None:
     #     )
 
     # Add uninstaller
-    UNINSTALLER_EXE_URL = "https://github.com/cnapy-org/CNApy-installer/blob/main/dist/cnapy-uninstaller.exe"
+    UNINSTALLER_EXE_URL = "https://github.com/cnapy-org/CNApy-installer/blob/main/dist/cnapy-uninstaller.exe?raw=true"
     uninstaller_exe_name = "cnapy-uninstaller.exe"
     uninstaller_exe_path = f"{selected_folder}{uninstaller_exe_name}"
     try:
