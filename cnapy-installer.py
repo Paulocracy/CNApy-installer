@@ -212,7 +212,7 @@ def installation_process() -> None:
 
 
 # If you just want to update the CNApy version, you just have to edit the following string:
-CNAPY_VERSION = "1.1.4"
+CNAPY_VERSION = "1.1.5"
 
 # Request elevated user rights
 # Found thanks to
