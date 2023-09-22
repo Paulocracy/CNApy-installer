@@ -8,7 +8,7 @@ from zipfile import ZipFile, ZIP_LZMA
 
 # If you just want to update the CNApy version, you just have to edit the following string
 # and run the CNApy installers creator:
-CNAPY_VERSION = "1.1.6"
+CNAPY_VERSION = "1.1.9"
 # Here, select your wished Miniconda installer .exe
 MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
 
@@ -135,20 +135,21 @@ os.remove(miniconda_exe_path)
 
 with open(f"{selected_folder}\\CNApy\\INSTALL_CNAPY.bat", "w") as f:
     f.write(
-        "./miniconda/condabin/conda create -n cnapy-1.1.6 -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy=1.1.6 --yes"
+        f"./miniconda/condabin/conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
     )
 
 with open(f"{selected_folder}\\INSTALL_CNAPY.bat", "w") as f:
     f.write(
-        "./CNApy/miniconda/condabin/conda create -n cnapy-1.1.6 -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy=1.1.6 --yes"
+        f"./CNApy/miniconda/condabin/conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
     )
 
 with open(f"{selected_folder}\\cnapy-assistant-script.sh", "w") as f:
     f.write(
         "#!/bin/sh\n"
-        "./conda create -n cnapy-1.1.6 -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy=1.1.6 --yes"
+        f"./conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
     )
 
+"""
 path = f"{selected_folder}\\CNApy"
 with ZipFile(f"{selected_folder}\\cnapy_windows_installer.zip", 'w', ZIP_LZMA) as zip_obj:
     for root, dirs, files in os.walk(path):
@@ -160,8 +161,10 @@ with ZipFile(f"{selected_folder}\\cnapy_windows_installer.zip", 'w', ZIP_LZMA) a
 
 os.remove(f"{selected_folder}\\INSTALL_CNAPY.bat")
 os.remove(f"{selected_folder}\\CNApy")
+"""
 
 messagebox.showinfo(
     "Successful installers generation",
     f"The installers were succesfully generated in {selected_folder}."
+    "Remaining step: put the Windows installer (the .bat file and the CNApy subfolder) into a .zip file."
 )
