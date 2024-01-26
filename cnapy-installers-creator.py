@@ -8,7 +8,7 @@ from zipfile import ZipFile, ZIP_LZMA
 
 # If you just want to update the CNApy version, you just have to edit the following string
 # and run the CNApy installers creator:
-CNAPY_VERSION = "1.1.9"
+CNAPY_VERSION = "1.1.10"
 # Here, select your wished Miniconda installer .exe
 MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
 
