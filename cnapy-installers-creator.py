@@ -9,8 +9,9 @@ from zipfile import ZipFile, ZIP_LZMA
 # If you just want to update the CNApy version, you just have to edit the following string
 # and run the CNApy installers creator:
 CNAPY_VERSION = "1.1.10"
-# Here, select your wished Miniconda installer .exe
-MINICONDA_EXE_URL = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
+# Here, select your wished miniforge installer .exe
+# as described in https://github.com/conda-forge/miniforge
+miniforge_EXE_URL = "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe" # "https://repo.anaconda.com/miniforge/miniforge3-latest-Windows-x86_64.exe"
 
 # Start the actual GUI program
 answer = messagebox.askyesno(
@@ -87,10 +88,10 @@ answer = messagebox.askyesno(
 if not answer:
     sys.exit(0)
 
-miniconda_exe_name = "miniconda.exe"
-miniconda_exe_path = f"{selected_folder}{miniconda_exe_name}"
+miniforge_exe_name = "miniforge.exe"
+miniforge_exe_path = f"{selected_folder}{miniforge_exe_name}"
 try:
-    urllib.request.urlretrieve(MINICONDA_EXE_URL, miniconda_exe_path)
+    urllib.request.urlretrieve(miniforge_EXE_URL, miniforge_exe_path)
 except Exception:
     messagebox.showerror(
         "Error while downloading",
@@ -99,8 +100,8 @@ except Exception:
     )
     sys.exit(0)
 
-miniconda_install_path = f"{selected_folder}\\CNApy\\miniconda\\"
-if os.path.exists(miniconda_install_path):
+miniforge_install_path = f"{selected_folder}\\CNApy\\miniforge\\"
+if os.path.exists(miniforge_install_path):
     messagebox.showerror(
         "The installers seem to be already downloaded in this folder",
         "It looks like the installers were already downloaded in the given folder.\n"
@@ -109,11 +110,11 @@ if os.path.exists(miniconda_install_path):
     sys.exit(0)
 
 # As per https://stackoverflow.com/questions/39984611/
-miniconda_command =  f'cd "{selected_folder}" && {miniconda_exe_name} /S /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /D={miniconda_install_path}'
+miniforge_command =  f'cd "{selected_folder}" && {miniforge_exe_name} /S /InstallationType=JustMe /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /D={miniforge_install_path}'
 
 try:
     has_run_error = subprocess.check_call(
-        miniconda_command,
+        miniforge_command,
         shell=True
     )  # The " are introduces in order to handle paths with blank spaces
 except subprocess.CalledProcessError:
@@ -127,21 +128,46 @@ if has_run_error:
     )
     sys.exit(0)
 
-conda_path = f"{miniconda_install_path}\\condabin\\conda"
-clean_command = f'"{conda_path} clean -a --yes'
+mamba_path = f"{miniforge_install_path}\\condabin\\mamba"
+clean_command = f'"{mamba_path} clean -a --yes'
 
 os.system(clean_command)
-os.remove(miniconda_exe_path)
+os.remove(miniforge_exe_path)
 
 with open(f"{selected_folder}\\CNApy\\INSTALL_CNAPY.bat", "w") as f:
     f.write(
-        f"./miniconda/condabin/conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
+        #f"./miniforge/condabin/mamba create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
+        f"""
+        @echo off
+        setlocal
+
+        REM Get the user's desktop path using USERPROFILE environment variable
+        set "desktopPath=%USERPROFILE%\Desktop"
+
+        :: Create the new batch file in the current folder
+        (
+        echo @echo off
+        echo echo Running the executable...
+        echo start "" /D "%~dp0miniforge\envs\cnapy-1.1.10\" "Scripts\cnapy.exe"
+        ) > "%~dp0RUN_CNApy.bat"
+
+        :: Create the new batch file on the desktop
+        (
+        echo @echo off
+        echo echo Running the executable...
+        echo start "" /D "%~dp0miniforge\envs\cnapy-1.1.10\" "Scripts\cnapy.exe"
+        ) > "%desktopPath%\RUN_CNApy.bat"
+
+        ./miniforge/condabin/mamba create -n cnapy-1.1.10 -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy=1.1.10 --yes
+
+        endlocal
+    	"""
     )
 
-with open(f"{selected_folder}\\INSTALL_CNAPY.bat", "w") as f:
-    f.write(
-        f"./CNApy/miniconda/condabin/conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
-    )
+# with open(f"{selected_folder}\\INSTALL_CNAPY.bat", "w") as f:
+#     f.write(
+#         f"./CNApy/miniforge/condabin/mamba create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
+#     )
 
 with open(f"{selected_folder}\\cnapy-assistant-script.sh", "w") as f:
     f.write(
