@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 import urllib.request
+import shutil
 from tkinter import messagebox
 from tkinter import filedialog
 from zipfile import ZipFile, ZIP_LZMA
@@ -134,6 +135,9 @@ clean_command = f'"{mamba_path} clean -a --yes'
 os.system(clean_command)
 os.remove(miniforge_exe_path)
 
+os.mkdir(f"{selected_folder}\\CNApy\\icon")
+shutil.copy("./app.ico", f"{selected_folder}\\CNApy\\icon\\CNApy_icon.ico")
+
 with open(f"{selected_folder}\\CNApy\\INSTALL_CNAPY.bat", "w") as f:
     f.write(
         f"""
@@ -156,13 +160,13 @@ REM Create the new batch file in the current folder
 (
 echo @echo off
 echo echo "Uninstalling CNApy {CNAPY_VERSION} (this may take some time)..."
-echo miniforge\\Uninstall-Miniforge-3.exe
-) > "%~dpUNINSTALL_CNAPY.bat"
+echo miniforge\\Uninstall-Miniforge3.exe
+) > "%~dp0UNINSTALL_CNAPY.bat"
 
 REM Create desktop icon
 @echo off
 set SCRIPT_PATH=%~dp0RUN_CNApy.bat
-set ICON_PATH=%~dp0CNApy_Icon.ico
+set ICON_PATH=%~dp0icon\\CNApy_Icon.ico
 set SHORTCUT_PATH=%USERPROFILE%\\Desktop\\CNApy-{CNAPY_VERSION}.lnk
 set WORKING_DIR=%~dp0
 
