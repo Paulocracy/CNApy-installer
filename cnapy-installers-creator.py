@@ -136,58 +136,60 @@ os.remove(miniforge_exe_path)
 
 with open(f"{selected_folder}\\CNApy\\INSTALL_CNAPY.bat", "w") as f:
     f.write(
-        #f"./miniforge/condabin/mamba create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
         f"""
-        @echo off
-        setlocal
+@echo off
+setlocal
 
-        REM Get the user's desktop path using USERPROFILE environment variable
-        set "desktopPath=%USERPROFILE%\Desktop"
+REM Get the user's desktop path using USERPROFILE environment variable
+set "desktopPath=%USERPROFILE%\Desktop"
 
-        :: Create the new batch file in the current folder
-        (
-        echo @echo off
-        echo echo Running the executable...
-        echo start "" /D "%~dp0miniforge\envs\cnapy-1.1.10\" "Scripts\cnapy.exe"
-        ) > "%~dp0RUN_CNApy.bat"
 
-        :: Create the new batch file on the desktop
-        (
-        echo @echo off
-        echo echo Running the executable...
-        echo start "" /D "%~dp0miniforge\envs\cnapy-1.1.10\" "Scripts\cnapy.exe"
-        ) > "%desktopPath%\RUN_CNApy.bat"
+REM Create the new batch file in the current folder
+(
+echo @echo off
+echo echo "Starting CNApy {CNAPY_VERSION} (this may take some time)..."
+echo miniforge\\condabin\\conda activate cnapy-{CNAPY_VERSION} ^& cnapy
+) > "%~dp0RUN_CNApy.bat"
 
-        ./miniforge/condabin/mamba create -n cnapy-1.1.10 -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy=1.1.10 --yes
 
-        endlocal
+REM Create the new batch file in the current folder
+(
+echo @echo off
+echo echo "Uninstalling CNApy {CNAPY_VERSION} (this may take some time)..."
+echo miniforge\\Uninstall-Miniforge-3.exe
+) > "%~dpUNINSTALL_CNAPY.bat"
+
+REM Create desktop icon
+@echo off
+set SCRIPT_PATH=%~dp0RUN_CNApy.bat
+set ICON_PATH=%~dp0CNApy_Icon.ico
+set SHORTCUT_PATH=%USERPROFILE%\\Desktop\\CNApy-{CNAPY_VERSION}.lnk
+set WORKING_DIR=%~dp0
+
+(
+echo Set oWS = WScript.CreateObject^("WScript.Shell"^)
+echo sLinkFile = "%SHORTCUT_PATH%"
+echo Set oLink = oWS.CreateShortcut^(sLinkFile^)
+echo oLink.TargetPath = "%SCRIPT_PATH%"
+echo oLink.IconLocation = "%ICON_PATH%"
+echo oLink.WorkingDirectory = "%WORKING_DIR%"
+echo oLink.Save
+) > CreateShortcut.vbs
+
+cscript //nologo CreateShortcut.vbs
+del CreateShortcut.vbs
+
+./miniforge/condabin/mamba create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes
+
+endlocal
     	"""
     )
-
-# with open(f"{selected_folder}\\INSTALL_CNAPY.bat", "w") as f:
-#     f.write(
-#         f"./CNApy/miniforge/condabin/mamba create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
-#     )
 
 with open(f"{selected_folder}\\cnapy-assistant-script.sh", "w") as f:
     f.write(
         "#!/bin/sh\n"
         f"./conda create -n cnapy-{CNAPY_VERSION} -c Gurobi -c IBMDecisionOptimization -c conda-forge -c cnapy cnapy={CNAPY_VERSION} --yes"
     )
-
-"""
-path = f"{selected_folder}\\CNApy"
-with ZipFile(f"{selected_folder}\\cnapy_windows_installer.zip", 'w', ZIP_LZMA) as zip_obj:
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            zip_obj.write(os.path.join(root, file),
-                          os.path.relpath(os.path.join(root, file),
-                                           os.path.join(path, '..')))
-    zip_obj.write(f"{selected_folder}\\INSTALL_CNAPY.bat", "./INSTALL_CNAPY.bat")
-
-os.remove(f"{selected_folder}\\INSTALL_CNAPY.bat")
-os.remove(f"{selected_folder}\\CNApy")
-"""
 
 messagebox.showinfo(
     "Successful installers generation",
