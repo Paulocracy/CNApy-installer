@@ -9,7 +9,7 @@ from zipfile import ZipFile, ZIP_LZMA
 
 # If you just want to update the CNApy version, you just have to edit the following string
 # and run the CNApy installers creator:
-CNAPY_VERSION = "1.1.10"
+CNAPY_VERSION = "1.1.11"
 # Here, select your wished miniforge installer .exe
 # as described in https://github.com/conda-forge/miniforge
 miniforge_EXE_URL = "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe" # "https://repo.anaconda.com/miniforge/miniforge3-latest-Windows-x86_64.exe"
